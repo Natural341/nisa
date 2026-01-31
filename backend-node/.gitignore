@@ -1,9 +1,7 @@
 # Dependencies
 node_modules/
 
-# Environment files (contains secrets!)
-.env
-.env.production
+# Environment files (local only)
 .env.local
 
 # Logs
