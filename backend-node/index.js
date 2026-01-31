@@ -2,7 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+const path = require('path');
+
+// Load environment variables based on NODE_ENV
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+require('dotenv').config({ path: path.join(__dirname, envFile) });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,15 +14,16 @@ const PORT = process.env.PORT || 3000;
 // Security Middleware
 app.use(helmet());
 
-// CORS Configuration - Production'da CORS_ORIGIN env variable'ı set edilmeli
-const corsOrigin = process.env.CORS_ORIGIN || '*';
-if (corsOrigin === '*' && process.env.NODE_ENV === 'production') {
-    console.warn('WARNING: CORS is set to allow all origins in production. Set CORS_ORIGIN env variable.');
-}
+// CORS Configuration - Allow all origins for now
 app.use(cors({
-    origin: corsOrigin === '*' ? true : corsOrigin.split(','),
-    credentials: true
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
 }));
+
+// Handle preflight requests explicitly
+app.options('*', cors());
 
 app.use(express.json({ limit: '10mb' })); // Support larger payloads for sync
 
@@ -66,7 +71,12 @@ app.use((req, res, next) => {
 
 // Basic Route
 app.get('/', (req, res) => {
-  res.json({ message: 'Nexus Inventory API is running secure and fast 🚀' });
+  res.json({ message: 'Nexus Inventory API is running secure and fast' });
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Routes (Will be imported later)
