@@ -15,6 +15,7 @@ const Licenses: React.FC = () => {
   const [selectedDealer, setSelectedDealer] = useState<string>('');
   const [expiryType, setExpiryType] = useState('1year');
   const [maxDevices, setMaxDevices] = useState(1);
+  const [licensePrice, setLicensePrice] = useState<number>(0);
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,10 +50,11 @@ const Licenses: React.FC = () => {
       if (expiryType === '1year') date.setFullYear(date.getFullYear() + 1);
       else if (expiryType === 'lifetime') date.setFullYear(date.getFullYear() + 99);
 
-      const newLicense = await MockService.generateLicense(selectedDealer, date.toISOString().split('T')[0], maxDevices);
+      const newLicense = await MockService.generateLicense(selectedDealer, date.toISOString().split('T')[0], maxDevices, licensePrice);
 
       setLicenses([newLicense, ...licenses]);
       setGeneratedKey(newLicense.key);
+      setLicensePrice(0); // Reset price
       toast.success('License Generated');
     } catch (e) {
       toast.error('Generation Failed');
@@ -64,14 +66,45 @@ const Licenses: React.FC = () => {
     toast.success('Copied to clipboard');
   };
 
-  const handleResetHW = (id: number) => {
-    setLicenses(prev => prev.map(l => l.id === id ? { ...l, macAddress: null } : l));
-    toast.success('Device lock reset');
+  const handleResetHW = async (id: number) => {
+    try {
+      await MockService.resetLicense(id);
+      setLicenses(prev => prev.map(l => l.id === id ? { ...l, macAddress: null } : l));
+      toast.success('Cihaz kilidi sıfırlandı');
+    } catch (e) {
+      toast.error('Sıfırlama başarısız');
+    }
   };
 
-  const handleRevoke = (id: number) => {
-    setLicenses(prev => prev.map(l => l.id === id ? { ...l, status: 'revoked' } : l));
-    toast.error('License Deactivated');
+  const handleRevoke = async (id: number) => {
+    try {
+      await MockService.revokeLicense(id);
+      setLicenses(prev => prev.map(l => l.id === id ? { ...l, status: 'revoked' } : l));
+      toast.error('Lisans iptal edildi');
+    } catch (e) {
+      toast.error('İptal başarısız');
+    }
+  };
+
+  const handleReactivate = async (id: number) => {
+    try {
+      await MockService.reactivateLicense(id);
+      setLicenses(prev => prev.map(l => l.id === id ? { ...l, status: 'active' } : l));
+      toast.success('Lisans tekrar aktifleştirildi');
+    } catch (e) {
+      toast.error('Aktifleştirme başarısız');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Bu lisansı kalıcı olarak silmek istediğinize emin misiniz?')) return;
+    try {
+      await MockService.deleteLicense(id);
+      setLicenses(prev => prev.filter(l => l.id !== id));
+      toast.success('Lisans silindi');
+    } catch (e) {
+      toast.error('Silme başarısız');
+    }
   };
 
   const handleExtend = async (id: number) => {
@@ -126,29 +159,41 @@ const Licenses: React.FC = () => {
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-slate-900 mb-2">Duration</label>
+                    <label className="block text-sm font-bold text-slate-900 mb-2">Süre</label>
                     <div className="relative">
                       <select
                         className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all appearance-none"
                         value={expiryType}
                         onChange={(e) => setExpiryType(e.target.value)}
                       >
-                        <option value="1year">1 Year</option>
-                        <option value="lifetime">Lifetime</option>
+                        <option value="1year">1 Yıl</option>
+                        <option value="lifetime">Süresiz</option>
                       </select>
                       <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-900 mb-2">Terminals</label>
+                    <label className="block text-sm font-bold text-slate-900 mb-2">Cihaz</label>
                     <input
                       type="number"
                       min="1" max="50"
                       className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all"
                       value={maxDevices}
                       onChange={(e) => setMaxDevices(parseInt(e.target.value))}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-slate-900 mb-2">Ücret (₺)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all"
+                      value={licensePrice || ''}
+                      onChange={(e) => setLicensePrice(parseFloat(e.target.value) || 0)}
                     />
                   </div>
                 </div>
@@ -215,16 +260,17 @@ const Licenses: React.FC = () => {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 uppercase font-extrabold text-xs text-slate-500 tracking-wider border-b border-slate-200">
               <tr>
-                <th className="px-6 py-4">License Key</th>
-                <th className="px-6 py-4">Partner</th>
-                <th className="px-6 py-4">Hardware Lock</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Actions</th>
+                <th className="px-6 py-4">Lisans Anahtarı</th>
+                <th className="px-6 py-4">Bayi</th>
+                <th className="px-6 py-4">Cihaz</th>
+                <th className="px-6 py-4">Ücret</th>
+                <th className="px-6 py-4">Durum</th>
+                <th className="px-6 py-4 text-right">İşlemler</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
               {loading ? (
-                <tr><td colSpan={5} className="px-6 py-12 text-center text-slate-400 text-sm">Loading registry...</td></tr>
+                <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-400 text-sm">Yükleniyor...</td></tr>
               ) : licenses.map((lic) => (
                 <tr key={lic.id} className="hover:bg-slate-50/80 transition-colors group">
                   <td className="px-6 py-4">
@@ -244,11 +290,14 @@ const Licenses: React.FC = () => {
                   <td className="px-6 py-4 font-mono text-xs">
                     {lic.macAddress ? (
                       <span className="inline-flex items-center text-slate-600 bg-slate-100 border border-slate-200 px-2 py-1 rounded-md font-medium">
-                        {lic.macAddress}
+                        {lic.macAddress.substring(0, 17)}
                       </span>
                     ) : (
-                      <span className="text-slate-300 text-[10px] uppercase font-bold tracking-wider pl-1">Unlocked</span>
+                      <span className="text-slate-300 text-[10px] uppercase font-bold tracking-wider pl-1">Bekliyor</span>
                     )}
+                  </td>
+                  <td className="px-6 py-4 text-slate-700 font-semibold">
+                    {lic.price ? `₺${lic.price.toLocaleString('tr-TR')}` : '-'}
                   </td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wide border
@@ -256,32 +305,49 @@ const Licenses: React.FC = () => {
                         lic.status === 'revoked' ? 'bg-red-50 text-red-700 border-red-100' :
                           'bg-slate-50 text-slate-600 border-slate-200'}
                     `}>
-                      {lic.status}
+                      {lic.status === 'active' ? 'Aktif' : lic.status === 'revoked' ? 'İptal' : lic.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-80 group-hover:opacity-100">
+                    <div className="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100">
                       <button
                         onClick={() => handleResetHW(lic.id)}
                         className="p-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-900 hover:text-white hover:border-slate-900 text-slate-500 disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-500 transition-all shadow-sm"
                         disabled={!lic.macAddress}
-                        title="Reset Hardware Lock"
+                        title="Cihaz Sıfırla"
                       >
                         <RefreshCw className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleExtend(lic.id)}
                         className="p-2 rounded-lg bg-white border border-slate-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 text-slate-500 transition-all shadow-sm"
-                        title="Extend License (+1 Year)"
+                        title="Süre Uzat (+1 Yıl)"
                       >
                         <Clock className="w-4 h-4" />
                       </button>
+                      {lic.status === 'active' ? (
+                        <button
+                          onClick={() => handleRevoke(lic.id)}
+                          className="p-2 rounded-lg bg-white border border-slate-200 hover:bg-orange-600 hover:text-white hover:border-orange-600 text-slate-500 transition-all shadow-sm"
+                          title="Lisansı İptal Et"
+                        >
+                          <ShieldOff className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleReactivate(lic.id)}
+                          className="p-2 rounded-lg bg-white border border-slate-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 text-slate-500 transition-all shadow-sm"
+                          title="Tekrar Aktifleştir"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                      )}
                       <button
-                        onClick={() => handleRevoke(lic.id)}
+                        onClick={() => handleDelete(lic.id)}
                         className="p-2 rounded-lg bg-white border border-slate-200 hover:bg-red-600 hover:text-white hover:border-red-600 text-slate-500 transition-all shadow-sm"
-                        title="Revoke License"
+                        title="Kalıcı Sil"
                       >
-                        <ShieldOff className="w-4 h-4" />
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
                   </td>

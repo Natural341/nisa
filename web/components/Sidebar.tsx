@@ -11,7 +11,7 @@ import {
   Settings,
   Monitor,
   History,
-  Package
+  TrendingUp
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,13 +21,13 @@ const Sidebar: React.FC<{ isOpen: boolean; toggle: () => void }> = ({ isOpen, to
   const { user, logout } = useAuth();
 
   const links = [
-    { name: 'Overview', path: '/', icon: LayoutDashboard },
-    { name: 'Partners', path: '/dealers', icon: Users },
-    { name: 'Licenses', path: '/licenses', icon: Key },
-    { name: 'Inventory', path: '/inventory', icon: Package },
-    { name: 'Devices', path: '/devices', icon: Monitor },
-    { name: 'Transactions', path: '/transactions', icon: History },
-    { name: 'Backups', path: '/backups', icon: CloudDownload },
+    { name: 'Genel Bakış', path: '/', icon: LayoutDashboard },
+    { name: 'Bayiler', path: '/dealers', icon: Users },
+    { name: 'Lisanslar', path: '/licenses', icon: Key },
+    { name: 'Gelir', path: '/inventory', icon: TrendingUp },
+    { name: 'Cihazlar', path: '/devices', icon: Monitor },
+    { name: 'İşlemler', path: '/transactions', icon: History },
+    { name: 'Yedekler', path: '/backups', icon: CloudDownload },
   ];
 
   const SidebarContent = () => (
@@ -42,7 +42,7 @@ const Sidebar: React.FC<{ isOpen: boolean; toggle: () => void }> = ({ isOpen, to
         </div>
         <div className="ml-4">
           <h1 className="text-xl font-black text-slate-900 tracking-tight">NEXUS</h1>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Inventory</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Admin Panel</p>
         </div>
         <button onClick={toggle} className="ml-auto md:hidden text-slate-400 hover:text-slate-900">
           <X className="w-6 h-6" />

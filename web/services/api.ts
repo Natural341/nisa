@@ -1,17 +1,14 @@
 import axios, { AxiosInstance } from 'axios';
 import { AuthResponse, DashboardStats, ActivityLog, Dealer, License, Backup } from '../types';
 
-// Configuration - Production'da VITE_API_URL environment variable kullanılmalı
+// Configuration - Development: localhost, Production: nisa.okilay.com
 const getApiUrl = () => {
-  // Önce environment variable kontrol et
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+  // Development mode - localhost
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:3000/api';
   }
-  // Fallback: aynı hostname farklı port (development için)
-  const protocol = window.location.protocol;
-  const hostname = window.location.hostname;
-  const port = import.meta.env.VITE_API_PORT || '3000';
-  return `${protocol}//${hostname}:${port}/api`;
+  // Production mode
+  return 'https://nisa.okilay.com/api';
 };
 const API_URL = getApiUrl();
 
@@ -169,6 +166,26 @@ export const MockService = { // Keeping name 'MockService' to avoid refactoring 
     } catch (error: any) {
       throw error.response?.data || { message: 'Activation failed' };
     }
+  },
+
+  // Lisans iptal et
+  revokeLicense: async (licenseId: number): Promise<void> => {
+    await api.post('/license/revoke', { license_id: licenseId });
+  },
+
+  // Lisansı tekrar aktif et
+  reactivateLicense: async (licenseId: number): Promise<void> => {
+    await api.post('/license/reactivate', { license_id: licenseId });
+  },
+
+  // Lisans sıfırla (MAC adresi temizle - yeni cihaza taşıma için)
+  resetLicense: async (licenseId: number): Promise<void> => {
+    await api.post('/license/reset', { license_id: licenseId });
+  },
+
+  // Lisansı kalıcı olarak sil
+  deleteLicense: async (licenseId: number): Promise<void> => {
+    await api.delete(`/license/${licenseId}`);
   }
 };
 

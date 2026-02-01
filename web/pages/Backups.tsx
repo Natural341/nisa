@@ -113,15 +113,15 @@ const Backups: React.FC = () => {
         <div className="space-y-8 relative">
             <div className="border-b border-slate-200 pb-6 flex justify-between items-center">
                 <div>
-                    <h2 className="text-3xl font-extrabold text-slate-900">Cloud Backups</h2>
-                    <p className="text-slate-500 mt-2 text-base">Manage client database snapshots</p>
+                    <h2 className="text-3xl font-extrabold text-slate-900">Bulut Yedekleri</h2>
+                    <p className="text-slate-500 mt-2 text-base">Bayi veritabanı yedeklerini yönetin</p>
                 </div>
                 <button
                     onClick={() => setIsUploadModalOpen(true)}
                     className="inline-flex items-center px-5 py-3 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-all text-sm font-bold shadow-lg shadow-slate-200"
                 >
                     <Upload className="w-4 h-4 mr-2" />
-                    Upload Backup
+                    Yedek Yükle
                 </button>
             </div>
 
@@ -130,18 +130,18 @@ const Backups: React.FC = () => {
                     <table className="w-full text-left">
                         <thead className="bg-slate-50 text-slate-500 uppercase text-sm font-extrabold border-b border-slate-200 tracking-wider">
                             <tr>
-                                <th className="px-8 py-5">Dealer Name</th>
-                                <th className="px-8 py-5">Filename</th>
-                                <th className="px-8 py-5">Size</th>
-                                <th className="px-8 py-5">Uploaded At</th>
-                                <th className="px-8 py-5 text-right">Action</th>
+                                <th className="px-8 py-5">Bayi</th>
+                                <th className="px-8 py-5">Dosya</th>
+                                <th className="px-8 py-5">Boyut</th>
+                                <th className="px-8 py-5">Son Güncelleme</th>
+                                <th className="px-8 py-5 text-right">İşlem</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {loading ? (
-                                <tr><td colSpan={5} className="p-16 text-center text-slate-400 text-lg">Scanning cloud storage...</td></tr>
+                                <tr><td colSpan={5} className="p-16 text-center text-slate-400 text-lg">Yükleniyor...</td></tr>
                             ) : backups.length === 0 ? (
-                                <tr><td colSpan={5} className="p-16 text-center text-slate-400 text-lg">No backups found.</td></tr>
+                                <tr><td colSpan={5} className="p-16 text-center text-slate-400 text-lg">Henüz yedek yok.</td></tr>
                             ) : backups.map((backup) => (
                                 <tr key={backup.id} className="text-slate-700 hover:bg-slate-50 transition-colors group">
                                     <td className="px-8 py-5 font-bold text-slate-900 text-base">
@@ -164,7 +164,7 @@ const Backups: React.FC = () => {
                                             className="inline-flex items-center px-5 py-2.5 rounded-xl bg-white border-2 border-slate-200 text-slate-700 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all text-sm font-bold shadow-sm"
                                         >
                                             <Download className="w-4 h-4 mr-2" />
-                                            Download
+                                            İndir
                                         </button>
                                     </td>
                                 </tr>
@@ -179,7 +179,7 @@ const Backups: React.FC = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold text-slate-900">Upload Manual Backup</h3>
+                            <h3 className="text-xl font-bold text-slate-900">Manuel Yedek Yükle</h3>
                             <button onClick={() => setIsUploadModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                                 <X className="w-6 h-6" />
                             </button>
@@ -187,21 +187,21 @@ const Backups: React.FC = () => {
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">Select Dealer</label>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">Bayi Seçin</label>
                                 <select
                                     className="w-full rounded-xl border-slate-200 focus:ring-slate-900 focus:border-slate-900 font-medium"
                                     value={selectedDealerId}
                                     onChange={(e) => setSelectedDealerId(e.target.value)}
                                 >
-                                    <option value="">Select a dealer...</option>
+                                    <option value="">Bayi seçin...</option>
                                     {dealers.map(d => (
-                                        <option key={d.id} value={d.id}>{d.name} ({d.id})</option>
+                                        <option key={d.id} value={d.id}>{d.name}</option>
                                     ))}
                                 </select>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">Backup File (.db)</label>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">Yedek Dosyası (.db)</label>
                                 <input
                                     type="file"
                                     accept=".db,.sqlite,application/x-sqlite3"
@@ -215,13 +215,13 @@ const Backups: React.FC = () => {
                                     onClick={() => setIsUploadModalOpen(false)}
                                     className="flex-1 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl font-bold hover:bg-slate-50 transition-colors"
                                 >
-                                    Cancel
+                                    İptal
                                 </button>
                                 <button
                                     onClick={handleUpload}
                                     className="flex-1 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200"
                                 >
-                                    Upload
+                                    Yükle
                                 </button>
                             </div>
                         </div>
