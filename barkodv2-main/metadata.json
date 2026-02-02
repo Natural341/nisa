@@ -1,0 +1,7 @@
+{
+  "name": "Nexus Inventory",
+  "description": "Professional Barcode Inventory System with AI-powered categorization.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

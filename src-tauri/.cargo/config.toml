@@ -1,0 +1,3 @@
+[build]
+# Default target directory - do not change to avoid watcher conflicts
+# target-dir = "target_fresh"

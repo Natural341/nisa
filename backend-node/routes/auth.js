@@ -55,7 +55,13 @@ router.post('/login', async (req, res) => {
 
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ success: false, message: 'Sunucu hatası' });
+        console.error('Login error:', error);
+        // DEBUG: Hatanın detayını frontend'e gönder ki görelim
+        res.status(500).json({
+            success: false,
+            message: 'Sunucu hatası: ' + error.message,
+            stack: error.stack
+        });
     }
 });
 

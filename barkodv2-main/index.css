@@ -1,0 +1,54 @@
+/* Global Styles */
+
+:root {
+    --color-hub-dark: #09090b;
+    --color-hub-panel: #18181b;
+    --color-hub-border: #27272a;
+    --color-hub-text: #f4f4f5;
+    --color-hub-muted: #a1a1aa;
+}
+
+body {
+    overscroll-behavior: none;
+    background-color: #f3f4f6;
+    /* gray-100 */
+}
+
+.dark body {
+    background-color: #000000;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #52525b;
+    border-radius: 3px;
+}
+
+/* Utility for touch targets */
+.touch-target {
+    min-height: 48px;
+    min-width: 48px;
+}
+
+.active-press:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+}
+
+/* Custom Gradients for Charts (CSS approach if needed) */
+.bg-gradient-monochrome {
+    background: linear-gradient(to top, #000000, #4b5563);
+}
+
+.dark .bg-gradient-monochrome {
+    background: linear-gradient(to top, #ffffff, #9ca3af);
+}

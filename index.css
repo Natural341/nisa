@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+/* Import legacy config */
+@config "./tailwind.config.cjs";
+
+/* Global Styles */
+
+:root {
+    --color-hub-dark: #09090b;
+    --color-hub-panel: #18181b;
+    --color-hub-border: #27272a;
+    --color-hub-text: #f4f4f5;
+    --color-hub-muted: #a1a1aa;
+}
+
+body {
+    overscroll-behavior: none;
+    background-color: #f3f4f6;
+    /* gray-100 */
+}
+
+.dark body {
+    background-color: #000000;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #52525b;
+    border-radius: 3px;
+}
+
+/* Utility for touch targets */
+.touch-target {
+    min-height: 48px;
+    min-width: 48px;
+}
+
+.active-press:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+}
+
+/* Custom Gradients for Charts (CSS approach if needed) */
+.bg-gradient-monochrome {
+    background: linear-gradient(to top, #000000, #4b5563);
+}
+
+.dark .bg-gradient-monochrome {
+    background: linear-gradient(to top, #ffffff, #9ca3af);
+}
+
+/* ==================== PRINT STYLES ==================== */
+@media print {
+    @page {
+        size: A4;
+        margin: 5mm;
+    }
+
+    /* Reset Body and HTML */
+    html,
+    body {
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        background: white !important;
+    }
+
+    /* Hide everything by default */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Exceptions: Receipt Preview & Daily Cash Report */
+    #receipt-preview,
+    #receipt-preview *,
+    #printable-invoice,
+    #printable-invoice *,
+    #daily-cash-report,
+    #daily-cash-report *,
+    #daily-report-printable,
+    #daily-report-printable * {
+        visibility: visible;
+    }
+
+    #daily-cash-report,
+    #daily-report-printable {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        min-height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white;
+        color: black;
+        z-index: 9999;
+
+        /* Centering Fix */
+        display: flex !important;
+        justify-content: center !important;
+        align-items: flex-start !important;
+    }
+
+    /* Grid Adjustments for Print */
+    #daily-cash-report .grid,
+    #daily-report-printable .grid {
+        display: grid !important;
+        gap: 1rem !important;
+    }
+
+    /* Ensure summary cards span nicely */
+    #daily-cash-report .grid-cols-4,
+    #daily-report-printable .grid-cols-4 {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+
+    /* Table Styling */
+    #daily-cash-report table,
+    #daily-report-printable table {
+        width: 100% !important;
+        border-collapse: collapse;
+        border: 1px solid black;
+        font-size: 10pt;
+        /* Optimal for A4 */
+    }
+
+    #daily-cash-report th,
+    #daily-cash-report td,
+    #daily-report-printable th,
+    #daily-report-printable td {
+        border: 1px solid black;
+        color: black !important;
+        padding: 4px 8px;
+    }
+
+    /* Hide Action Columns */
+    #daily-cash-report th:last-child,
+    #daily-cash-report td:last-child {
+        display: none !important;
+    }
+
+    #daily-report-printable th:last-child,
+    #daily-report-printable td:last-child {
+        /* We might want to keep last child if it's amount, usually actions are handled by print:hidden class on the element itself */
+        /* display: none !important; */
+    }
+
+    /* Hide other print UI specific elements */
+    .print\:hidden {
+        display: none !important;
+    }
+}

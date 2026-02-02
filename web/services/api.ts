@@ -8,6 +8,7 @@ const getApiUrl = () => {
     return 'http://localhost:3000/api';
   }
   // Production mode
+  // Production (Hostinger) - Dedicated API Domain
   return 'https://nisa.okilay.com/api';
 };
 const API_URL = getApiUrl();

@@ -5,8 +5,12 @@ const ActivationPage: React.FC = () => {
     const { activateLicense, error: contextError, clearError, isExpired } = useLicense();
 
     const [licenseKey, setLicenseKey] = useState('');
-    // Production API URL
-    const [apiBaseUrl] = useState('https://nisa.okilay.com');
+    // API URL - localhost for dev, production for build
+    const [apiBaseUrl] = useState(
+        window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : 'https://nisa.okilay.com'
+    );
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [localError, setLocalError] = useState('');
 
